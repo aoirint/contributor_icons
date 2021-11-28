@@ -58,15 +58,35 @@ Hiroshiba/voicevox_core
 
 <hr>
 
-<div id="contributors" style="display: flex; flex-wrap: wrap; margin: 70px 50px">
+<label>
+    <input id="filterunique" type="checkbox" checked>
+    重複を除去
+</label>
+
+<label>
+    <input id="sortedbycontribution" type="checkbox" checked>
+    Contribution数で再ソート
+</label>
+
+<hr>
+
+<textarea id="contributorstext" cols="80" rows="10"></textarea>
+
+<hr>
+
+<div id="contributors" style="display: flex; flex-wrap: wrap; margin: 200px 50px">
 </div>
 
 <script>
     const contributors = document.querySelector('#contributors')
+    const contributorstext = document.querySelector('#contributorstext')
+    const filterunique = document.querySelector('#filterunique')
+    const sortedbycontribution = document.querySelector('#sortedbycontribution')
     const template = document.querySelector('.template')
-
+    
     button.addEventListener('click', (event) => {
         while (contributors.firstChild) contributors.removeChild(contributors.firstChild)
+        contributorstext.value = ''
 
         Promise.all(
             text.value.split('\n')
@@ -84,10 +104,18 @@ Hiroshiba/voicevox_core
 
                     const loginList = contributorList.map(({ login }) => login)
 
-                    contributorList
-                        .filter(({ login }, index) => loginList.indexOf(login) === index)
-                        .sort(({ contributions: a }, { contributions: b }) => b - a)
-                        .map(({
+                    let filtered = contributorList
+                    if (filterunique.checked) {
+                        filtered = filtered.filter(({ login }, index) => loginList.indexOf(login) === index)
+                    }
+                    
+                    let sorted = filtered
+                    if (sortedbycontribution.checked) {
+                        sorted = sorted.sort(({ contributions: a }, { contributions: b }) => b - a)
+                    }
+
+                    sorted
+                        .forEach(({
                             login,
                             avatar_url,
                             html_url
@@ -104,10 +132,12 @@ Hiroshiba/voicevox_core
                             const name = user.querySelector('.name')
                             name.innerText = login
 
-                            return user
-                        }).forEach((element) => {
-                            contributors.append(element)
+                            contributorstext.value += `@${login} `
+
+                            contributors.append(user)
                         })
+                    
+                    contributorstext.value = contributorstext.value.slice(0, contributorstext.value.length-1)
                 })
             )
     })
