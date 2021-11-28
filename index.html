@@ -3,6 +3,24 @@
 
 <style>
     html { background-color: #FFFFFF; }
+    .user {
+    }
+    .anchor {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #333333;
+        text-decoration: none;
+        width: 100px;
+        height: 100px;
+    }
+    .icon {
+        display: block;
+        border-radius: 50%;
+    }
+    .name {
+        font-size: 10pt;
+    }
 </style>
 
 <textarea id="text" cols="80" rows="10">
@@ -13,6 +31,25 @@ Hiroshiba/voicevox_core
 
 <hr>
 
+<div class="template user">
+    <a
+        class="anchor"
+        href="https://github.com/aoirint"
+    >
+        <img
+            class="icon"
+            src="https://avatars.githubusercontent.com/u/27213639?v=4"
+            title="aoirint"
+            width="64"
+            height="64"
+        >
+        <div class="name">
+            aoirint
+        </div>
+    </a>
+
+</div>
+
 <button id="button" type="button">Fetch</button>
 
 <hr>
@@ -21,10 +58,8 @@ Hiroshiba/voicevox_core
 </div>
 
 <script>
-    const size = 64
-    const margin = '4px'
-
     const contributors = document.querySelector('#contributors')
+    const template = document.querySelector('.template')
 
     button.addEventListener('click', (event) => {
         while (contributors.firstChild) contributors.removeChild(contributors.firstChild)
@@ -53,21 +88,17 @@ Hiroshiba/voicevox_core
                             avatar_url,
                             html_url
                         }) => {
-                            const user = document.createElement('div')
-                            user.style.margin = margin
+                            const user = template.cloneNode(true)
 
-                            const img = document.createElement('img')
+                            const img = user.querySelector('.icon')
                             img.src = avatar_url
                             img.title = login
-                            img.width = size
-                            img.height = size
-                            img.style.borderRadius = '50%'
 
-                            const anchor = document.createElement('a')
+                            const anchor = user.querySelector('.anchor')
                             anchor.href = html_url
-                            anchor.append(img)
 
-                            user.append(anchor)
+                            const name = user.querySelector('.name')
+                            name.innerText = login
 
                             return user
                         }).forEach((element) => {
