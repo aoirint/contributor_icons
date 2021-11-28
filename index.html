@@ -95,11 +95,15 @@ Hiroshiba/voicevox_core
         while (contributors.firstChild) contributors.removeChild(contributors.firstChild)
         contributorstext.value = ''
 
+        const params = new URLSearchParams({
+            per_page: 100,
+        })
+
         Promise.all(
             text.value.split('\n')
                 .filter((value) => value !== '')
                 .map((value) => `https://api.github.com/repos/${value}/contributors`)
-                .map((url) => fetch(url))
+                .map((url) => fetch(`${url}?${params}`))
         )
             .then((responses) => 
                 Promise.all(
