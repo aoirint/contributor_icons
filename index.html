@@ -67,7 +67,7 @@ Hiroshiba/voicevox_core
 
 <label>
     <input id="filterunique" type="checkbox" checked>
-    重複を除去
+    重複を統合
 </label>
 
 <label>
@@ -109,13 +109,28 @@ Hiroshiba/voicevox_core
                     const contributorList = responses
                         .flatMap((response) => response)
 
-                    const loginList = contributorList.map(({ login }) => login)
+                    const loginList = contributorList
+                        .map(({ login }) => login)
+                        .filter((login, index, self) => self.indexOf(login) === index)
 
                     let filtered = contributorList
                     if (filterunique.checked) {
-                        filtered = filtered.filter(({ login }, index) => loginList.indexOf(login) === index)
+                        filtered = loginList.map((login) => {
+                            let sumContributions = 0
+                            filtered
+                                .filter(({ login: _login }) => login === _login)
+                                .forEach(({ contributions }) => {
+                                    sumContributions += contributions
+                                })
+                            
+                            return {
+                                ...filtered.find(({ login: _login }) => login === _login),
+                                contributions: sumContributions
+                            }
+                        })
+                        // filtered = filtered.filter(({ login }, index) => loginList.indexOf(login) === index)
                     }
-                    
+
                     let sorted = filtered
                     if (sortedbycontribution.checked) {
                         sorted = sorted.sort(({ contributions: a }, { contributions: b }) => b - a)
@@ -125,13 +140,14 @@ Hiroshiba/voicevox_core
                         .forEach(({
                             login,
                             avatar_url,
+                            contributions,
                             html_url
                         }) => {
                             const user = template.cloneNode(true)
 
                             const img = user.querySelector('.icon')
                             img.src = avatar_url
-                            img.title = login
+                            img.title = `@${login} (${contributions})`
 
                             const anchor = user.querySelector('.anchor')
                             anchor.href = html_url
